@@ -1,0 +1,7 @@
+.git
+.idea
+.gitignore
+env
+Dockerfile
+docker-compose.yml
+pool_app

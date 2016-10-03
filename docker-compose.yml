@@ -1,0 +1,100 @@
+version: '2'
+
+services:
+  nginx:
+    image: jwilder/nginx-proxy
+    environment:
+      DEFAULT_HOST: colbybot.local
+    depends_on:
+      - django
+    networks:
+      - front-tier
+    ports:
+      - "80:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock:ro
+
+  django:
+    build: .
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      VIRTUAL_HOST: colbybot.local
+      VIRTUAL_PROTO: uwsgi
+      SECRET_KEY: "chave-super-secreta"
+      DEBUG: "TRUE"
+      DB_NAME: colbybot
+      DB_USER: colbybot
+      DB_PASSWORD: colbybotpassword
+      TOKEN: 123456789:ABCdefghiJkLmNOpQ1r23-stuVWX_YZABCd
+    networks:
+      - cache-tier
+      - db-tier
+      - front-tier
+    restart: on-failure:10
+    tty: true
+    volumes:
+      - .:/usr/src/app
+
+  postgres:
+    environment:
+      POSTGRES_DB: colbybot
+      POSTGRES_USER: colbybot
+      POSTGRES_PASSWORD: colbybotpassword
+    image: postgres:9
+    networks:
+      - db-tier
+    restart: on-failure:10
+    volumes:
+      - colbybotdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:3
+    networks:
+      - cache-tier
+
+  celery:
+    build: .
+    command: celery worker -A colbybot -l info
+    depends_on:
+      - redis
+      - postgres
+    environment:
+      DEBUG: "TRUE"
+      SECRET_KEY: "chave-super-secreta"
+      DB_NAME: colbybot
+      DB_USER: colbybot
+      DB_PASSWORD: colbybotpassword
+      TOKEN: 123456789:ABCdefghiJkLmNOpQ1r23-stuVWX_YZABCd
+    networks:
+      - cache-tier
+      - db-tier
+    restart: on-failure:10
+    volumes:
+      - .:/usr/src/app
+
+  pool:
+    build: pool_app
+    depends_on:
+      - django
+    environment:
+      TOKEN: 123456789:ABCdefghiJkLmNOpQ1r23-stuVWX_YZABCd
+      BOT_URL: http://nginx/bot/parse_commands/
+    networks:
+      - front-tier
+    restart: on-failure:10
+    volumes:
+      - ./pool_app:/usr/src/app
+
+networks:
+  cache-tier:
+    driver: bridge
+  db-tier:
+    driver: bridge
+  front-tier:
+    driver: bridge
+
+volumes:
+  colbybotdata:
+    driver: local
