@@ -28,6 +28,7 @@ services:
       DB_USER: colbybot
       DB_PASSWORD: colbybotpassword
       TOKEN: 123456789:ABCdefghiJkLmNOpQ1r23-stuVWX_YZABCd
+      DOMAIN: http://localhost
     networks:
       - cache-tier
       - db-tier
@@ -67,6 +68,7 @@ services:
       DB_USER: colbybot
       DB_PASSWORD: colbybotpassword
       TOKEN: 123456789:ABCdefghiJkLmNOpQ1r23-stuVWX_YZABCd
+      DOMAIN: http://localhost
     networks:
       - cache-tier
       - db-tier

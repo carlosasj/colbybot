@@ -1,4 +1,5 @@
 from django.db import models
+import json
 
 
 class Chat(models.Model):
@@ -56,3 +57,12 @@ class Chat(models.Model):
         help_text=("A short memory, to store the last command if the command "
                    "have a flow with more than one message"),
     )
+
+    @property
+    def get_state_json(self):
+        return json.loads(self.state)
+
+    @property
+    def set_state_json(self, payload):
+        self.state = json.dumps(payload)
+        return self.state

@@ -7,7 +7,7 @@ import logging
 @shared_task(
     name='generic.send',
     bind=True,
-    max_retries=16,
+    max_retries=6,
     rate_limit='30/s'
 )
 def send_message(self, message):

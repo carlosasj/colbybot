@@ -114,6 +114,6 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 
-
+DOMAIN = getenv('DOMAIN')
 TOKEN = getenv('TOKEN')
 BASE_URL = 'https://api.telegram.org/bot'

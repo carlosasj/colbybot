@@ -35,7 +35,7 @@ class Topic(models.Model):
     subscribers = models.ManyToManyField(
         'bot.Chat',
         verbose_name='Subscribers',
-        related_name='subscribed_topic'
+        related_name='subscribed_topics'
     )
     last_publish = models.DateTimeField(
         verbose_name='Last publish',

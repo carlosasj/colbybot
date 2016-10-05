@@ -1,4 +1,5 @@
 from functools import lru_cache
+from .Chat import Chat
 
 
 class MessageEntity:
@@ -59,9 +60,24 @@ class Message:
         if self.contains_command:
             entity = next(ent for ent in self.entities
                           if ent.type == 'bot_command')
-            return self.text[entity.offset:(entity.offset+entity.length)]
+            return (self.text[entity.offset:(entity.offset+entity.length)]
+                    .split('@', 1)[0])
         else:
             return None
+
+    @property
+    @lru_cache()
+    def the_argument(self):
+        cmd = self.the_command
+        if cmd is None:
+            arg = self.text.strip().split(' ', 1)
+        else:
+            entity = next(ent for ent in self.entities
+                          if ent.type == 'bot_command')
+            arg = (self.text[(entity['offset'] + entity['length']):]
+                   .strip().split(' ', 1))
+
+        return arg[0] if len(arg) > 0 and arg[0] else None
 
     def is_valid_command(self, commands):
         cmd = self.the_command
@@ -69,5 +85,12 @@ class Message:
             return False
         else:
             return cmd in commands
+
+    @property
+    def chat_model(self):
+        if not hasattr(self, '_chat_model'):
+            self._chat_model = Chat.objects.get(id=self.chat['id'])
+        return self._chat_model
+
 
 

@@ -17,5 +17,6 @@ from django.conf.urls import url, include
 
 
 urlpatterns = [
-    url(r'^bot/', include('bot.urls')),
+    url(r'^bot/', include('bot.urls.telegram_frontend')),
+    url(r'^publish/', include('bot.urls.webhook_receiver')),
 ]

@@ -1,19 +1,42 @@
 from celery import shared_task
+from django.conf import settings
+from django.urls import reverse
 
 from bot.utils import gen_delay
 from .generic_send import send_message
+from ..models import Topic, Chat
+
+TEXT = """Great! Now you have a new topic!
+
+You can send `HTTP POST` requests to:
+`{webhook_endpoint}`
+
+If you want more people receiving the notifications, send them this TopicCode:
+`{topic_code}`
+
+I've already subscribed you to this topic.
+"""
 
 
 @shared_task(
-    name='cmd.start',
+    name='cmd.new',
     bind=True,
-    max_retries=16,
+    max_retries=6,
 )
 def new(self, update):
     try:
+        owner = Chat.objects.get(id=update['message']['chat']['id'])
+        topic = Topic.objects.generate_new(owner)
+        webhook_endpoint = ''.join([
+            settings.DOMAIN,
+            reverse('publish_endpoint',
+                    kwargs={"code": topic.code, "secret": topic.secret})
+        ])
+
         msg = {
             "chat_id": update['message']['chat']["id"],
-            "text": GREETINGS,
+            "text": TEXT.format(webhook_endpoint=webhook_endpoint,
+                                topic_code=topic.code),
             "parse_mode": "Markdown",
         }
         send_message.delay(msg)

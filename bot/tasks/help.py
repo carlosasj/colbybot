@@ -3,7 +3,7 @@ from celery import shared_task
 from bot.utils import gen_delay
 from .generic_send import send_message
 
-HELP = """Here follows ALL the supported commands:
+TEXT = """Here follows ALL the supported commands:
 
 /cancel - Cancel an action at any time
 /start - Start the chat with me!
@@ -21,9 +21,9 @@ HELP = """Here follows ALL the supported commands:
 /stop - Remove every information about you from the server
 
 -----
-All commands with \[TopicCode] can be used with two forms:
-1. Single message: */command \[TopicCode]*
-2. Two messages: First */command*, then *\[TopicCode]*
+All commands with \[TopicCode] can be used in two ways:
+1. Single message: */command [TopicCode]*
+2. Two messages: First */command*, then *[TopicCode]*
 
 The /stop command will require you to unsubscribe to all topics and delete \
 all topics you are the owner.
@@ -31,15 +31,15 @@ all topics you are the owner.
 
 
 @shared_task(
-    name='cmd.start',
+    name='cmd.help',
     bind=True,
-    max_retries=16,
+    max_retries=6,
 )
 def help_(self, update):
     try:
         msg = {
             "chat_id": update['message']['chat']["id"],
-            "text": HELP,
+            "text": TEXT,
             "parse_mode": "Markdown",
         }
         send_message.delay(msg)

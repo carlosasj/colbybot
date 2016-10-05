@@ -3,6 +3,6 @@ from ..views import telegram_frontend as views
 
 
 urlpatterns = [
-    url(r'^$', views.parse_commands),
-    url(r'^status/$', views.status),
+    url(r'^parse_commands/status/$', views.status),
+    url(r'^parse_commands/$', views.parse_commands),
 ]

@@ -4,7 +4,10 @@ from django.conf import settings
 from functools import lru_cache
 
 
-sample = ''.join([string.ascii_lowercase, string.digits])
+sample = ''.join([string.ascii_lowercase,
+                  string.ascii_uppercase,
+                  string.digits,
+                  '-'])
 
 
 def randomstr(n=6):
@@ -17,4 +20,4 @@ def api_path(path):
 
 
 def gen_delay(task):
-    return random.uniform(2, 3) ** task.request.retries
+    return random.triangular(1.1, 2.5, 2.1) ** task.request.retries

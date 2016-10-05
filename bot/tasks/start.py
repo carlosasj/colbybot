@@ -3,7 +3,7 @@ from celery import shared_task
 from bot.utils import gen_delay
 from .generic_send import send_message
 
-GREETINGS = """*Welcome to Colby Bot!*
+TEXT = """*Welcome to Colby Bot!*
 
 TL;DR : /new
 
@@ -33,13 +33,13 @@ I'm glad you chose my services.
 @shared_task(
     name='cmd.start',
     bind=True,
-    max_retries=16,
+    max_retries=6,
 )
 def start(self, update):
     try:
         msg = {
             "chat_id": update['message']['chat']["id"],
-            "text": GREETINGS,
+            "text": TEXT,
             "parse_mode": "Markdown",
         }
         send_message.delay(msg)
