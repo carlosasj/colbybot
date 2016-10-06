@@ -21,3 +21,23 @@ def api_path(path):
 
 def gen_delay(task):
     return random.triangular(1.1, 2.5, 2.1) ** task.request.retries
+
+
+def dict_to_markdown(dikt, order=()):
+    lines = []
+    if not order:
+        order = list(dikt.keys())
+        order.sort()
+        order = tuple(order)
+    for o in order:
+        if type(o) is tuple:
+            key, text = o
+        else:
+            key, text = (o, o)
+        value = dikt.get(key)
+        if value:
+            line = ''.join(['*', str(text), ':* ', str(value)])
+            lines.append(line)
+
+    return '\n'.join(lines)
+

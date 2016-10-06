@@ -1,5 +1,6 @@
 from celery import shared_task
 
+from bot.models import Chat
 from bot.utils import gen_delay
 from .generic_send import send_message
 
@@ -35,8 +36,12 @@ all topics you are the owner.
     bind=True,
     max_retries=6,
 )
-def help_(self, update):
+def help_(self, update, argument=None):
     try:
+        chat = Chat.objects.get(id=update['message']['chat']["id"])
+        chat.state = "root"
+        chat.save()
+
         msg = {
             "chat_id": update['message']['chat']["id"],
             "text": TEXT,

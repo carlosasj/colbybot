@@ -5,7 +5,7 @@ from functools import lru_cache
 
 class Update:
     def __init__(self, body):
-        data = json.loads(body.decode("utf-8"))
+        data = json.loads(body)
         self.json = data
         print(data)
         self.update_id = data['update_id']

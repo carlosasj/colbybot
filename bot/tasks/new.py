@@ -23,15 +23,18 @@ I've already subscribed you to this topic.
     bind=True,
     max_retries=6,
 )
-def new(self, update):
+def new(self, update, argument=None):
     try:
-        owner = Chat.objects.get(id=update['message']['chat']['id'])
-        topic = Topic.objects.generate_new(owner)
+        chat = Chat.objects.get(id=update['message']['chat']['id'])
+        topic = Topic.objects.generate_new(chat)
         webhook_endpoint = ''.join([
             settings.DOMAIN,
             reverse('publish_endpoint',
                     kwargs={"code": topic.code, "secret": topic.secret})
         ])
+
+        chat.state = 'root'
+        chat.save()
 
         msg = {
             "chat_id": update['message']['chat']["id"],

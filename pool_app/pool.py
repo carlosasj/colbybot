@@ -2,6 +2,7 @@ from time import sleep
 import logging
 
 import requests
+from requests.exceptions import Timeout
 import os
 
 offset = 432604897
@@ -19,8 +20,8 @@ def skip_initial():
     size = 100
     while size == 100:
         data = {"offset": offset}
-        r = requests.get(api_path('getUpdates'), params=data)
         try:
+            r = requests.get(api_path('getUpdates'), params=data, timeout=5)
             assert r.status_code == 200
             back = r.json()
             assert back['ok'] is True
@@ -29,7 +30,7 @@ def skip_initial():
                 offset = max(back['result'],
                              key=lambda x: x['update_id']
                              )['update_id'] + 1
-        except AssertionError:
+        except (AssertionError, Timeout):
             sleep(1.5)
 
 
@@ -46,10 +47,13 @@ def main():
         delivered = False
 
         data = {"offset": offset, "limit": 1}
-        r = requests.get(api_path('getUpdates'), params=data)
-        if (r.status_code != 200 or
-            r.json()['ok'] is not True or
-                len(r.json()['result']) != 1):
+        try:
+            r = requests.get(api_path('getUpdates'), params=data, timeout=5)
+            if (r.status_code != 200 or
+                r.json()['ok'] is not True or
+                    len(r.json()['result']) != 1):
+                continue
+        except Timeout:
             continue
         update = r.json()['result'][0]
         offset = update['update_id'] + 1

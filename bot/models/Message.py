@@ -74,7 +74,7 @@ class Message:
         else:
             entity = next(ent for ent in self.entities
                           if ent.type == 'bot_command')
-            arg = (self.text[(entity['offset'] + entity['length']):]
+            arg = (self.text[(entity.offset+entity.length):]
                    .strip().split(' ', 1))
 
         return arg[0] if len(arg) > 0 and arg[0] else None

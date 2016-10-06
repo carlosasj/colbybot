@@ -16,13 +16,7 @@ def endpoint_public(request, code, secret):
 
 
 def endpoint_public_get(request, topic):
-    data = {
-        'code': topic.code,
-        'subscribers_count': topic.subscribers.count(),
-        'last_publish': topic.last_publish,
-        'created_at': topic.created_at,
-    }
-    return JsonResponse(data, status=200)
+    return JsonResponse(topic.info(), status=200)
 
 
 def endpoint_public_post(request, topic):

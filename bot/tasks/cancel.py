@@ -10,7 +10,7 @@ from ..models import Chat
     bind=True,
     max_retries=6,
 )
-def cancel(self, update):
+def cancel(self, update, argument=None):
     try:
         chat = Chat.objects.get(id=update['message']['chat']["id"])
         if chat.state == 'root':

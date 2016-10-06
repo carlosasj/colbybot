@@ -34,68 +34,102 @@ def error_answer(update, text, parse_mode=None):
 @csrf_exempt
 @require_http_methods(['POST'])
 def parse_commands(request):
-    update = Update(request.body)
+    body = request.body.decode("utf-8")
+    update = Update(body)
+    body['validations'] = {
+        "is_edited": None,
+        "is_valid_request": None,
+        "has_text": None,
+        "contains_command": None,
+        "contains_single_command": None,
+        "startswith_command": None,
+        "is_valid_command": None,
+        "the_command": None,
+        "the_argument": None,
+        "is_flow": None,
+    }
 
     if update.is_edited:
         # Não responde nada
-        print('FRONTEND: Is edited')
+        # body['validations']['is_edited'] = True
         return HttpResponse(status=200)
 
+    body['validations']['is_edited'] = False
+
     if not update.is_valid_request:
-        print('FRONTEND: Is invalid')
+        # body['validations']['is_valid_request'] = False
         error_answer(update, "Sorry, I don't accept "
                              "this kind of requisition")
         return HttpResponse(status=200)
 
+    body['validations']['is_valid_request'] = True
+
     message = update.message
     Chat.objects.get_or_create(
-        id=update.json['message']['chat']['id'],
-        defaults=update.json['message']['chat'],
+        id=body['message']['chat']['id'],
+        defaults=body['message']['chat'],
     )
 
     if not hasattr(message, 'text'):
-        print('FRONTEND: Has no text')
+        # body['validations']['has_text'] = False
         error_answer(update, ("Sorry, I only accept text messages "
                               "(or puppy pics, BUT with a caption)"))
         return HttpResponse(status=200)
 
-    if update.message.chat_model.state == 'root':
-        # Começa o fluxo que exige ao menos um comando, já que não houve
-        # mensagens anteriores alterando o estado do usuário
-        if not message.contains_command:
-            print('FRONTEND: Has no command')
-            error_answer(update, ("Your message has no commands.\nSend me "
-                                  "/help to know everything I can do!"))
-            return HttpResponse(status=200)
+    body['validations']['has_text'] = True
+
+    if message.contains_command:
+        body['validations']['contains_command'] = True
 
         if not message.contains_single_command:
-            print('FRONTEND: Has multiple commands')
+            # body['validations']['contains_single_command'] = False
             error_answer(update, ("Your message have multiple commands, "
                                   "and I can't handle this (yet)"))
             return HttpResponse(status=200)
 
+        body['validations']['contains_single_command'] = True
+
         if not message.startswith_command:
-            print('FRONTEND: Does not start with command')
+            # body['validations']['startswith_command'] = False
             error_answer(update, ("Please, place the command at "
                                   "the beginning of the message"))
             return HttpResponse(status=200)
 
+        body['validations']['startswith_command'] = True
+
         if not message.is_valid_command(COMMANDS):
-            print('FRONTEND: Is invalid command')
+            # body['validations']['is_valid_command'] = False
             error_answer(update, "Sorry, The Master didn't "
                                  "train me to do that")
             return HttpResponse(status=200)
 
-        print('FRONTEND: Command identified as "{}"'
-              .format(message.the_command))
-        COMMANDS[message.the_command].delay(update.json)
-        # Fim do fluxo que espera por um comando na mensagem
-    else:
-        # Começa o fluxo que NÃO espera nenhum comando, porque a mensagem
-        # anterior que definiu o comando, e agora só vem o argumento
-        pass
+        body['validations']['is_valid_command'] = True
+        body['validations']['the_command'] = message.the_command
+        body['validations']['the_argument'] = message.the_argument
 
-    return HttpResponse(status=200)
+        COMMANDS[message.the_command].delay(body, message.the_argument)
+        return HttpResponse(status=200)
+
+    else:
+        body['validations']['contains_command'] = False
+
+        if update.message.chat_model.state == 'root':
+            # body['validations']['is_flow'] = False
+            error_answer(update, ("Your message has no commands.\nSend me "
+                                  "/help to know everything I can do!"))
+            return HttpResponse(status=200)
+
+        else:
+            body['validations']['is_flow'] = True
+
+            last_cmd = update.message.chat_model.get_state_json()['last_cmd']
+
+            body['validations']['the_command'] = last_cmd
+            body['validations']['the_argument'] = message.the_argument
+
+            COMMANDS[last_cmd].delay(body, message.the_argument)
+
+            return HttpResponse(status=200)
 
 
 @csrf_exempt

@@ -52,3 +52,20 @@ class Topic(models.Model):
     )
 
     objects = TopicManager()
+
+    def info(self, humanize=False):
+        if humanize:
+            return {
+                'code': self.code,
+                'subscribers_count': self.subscribers.count(),
+                'last_publish': (self.last_publish
+                                 .strftime("%Y-%m-%d %H:%M:%S")),
+                'created_at': self.created_at.strftime("%Y-%m-%d"),
+            }
+        else:
+            return {
+                'code': self.code,
+                'subscribers_count': self.subscribers.count(),
+                'last_publish': self.last_publish,
+                'created_at': self.created_at,
+            }

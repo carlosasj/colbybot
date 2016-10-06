@@ -20,7 +20,7 @@ text = """Here are the topics you subscribed:
     bind=True,
     max_retries=6,
 )
-def list_(self, update):
+def list_(self, update, argument=None):
     try:
         chat = Chat.objects.get(id=update['message']['chat']["id"])
         topics = chat.subscribed_topics.all()
@@ -30,6 +30,9 @@ def list_(self, update):
              ]) for i, topic in enumerate(topics)]
         topics_txt = '\n'.join(topics_txt)
         text_ = text.format(topics=topics_txt, crown=crown)
+
+        chat.state = 'root'
+        chat.save()
 
         msg = {
             "chat_id": update['message']['chat']["id"],

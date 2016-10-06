@@ -58,11 +58,22 @@ class Chat(models.Model):
                    "have a flow with more than one message"),
     )
 
-    @property
     def get_state_json(self):
         return json.loads(self.state)
 
-    @property
     def set_state_json(self, payload):
         self.state = json.dumps(payload)
         return self.state
+
+    def subscribed_as_keyboard(self):
+        topics = self.subscribed_topics.order_by('created_at')
+        keys = []
+        # even = len(topics) % 2 == 0
+        for i in range(0, len(topics), 2):
+            item_a = topics[i]
+            try:
+                item_b = topics[i+1]
+                keys.append([item_a.code, item_b.code])
+            except IndexError:
+                keys.append([item_a.code])
+        return keys

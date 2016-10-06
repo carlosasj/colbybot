@@ -9,7 +9,7 @@ from .generic_send import send_message
     bind=True,
     max_retries=6,
 )
-def docs(self, update):
+def docs(self, update, argument=None):
     try:
         msg = {
             "chat_id": update['message']['chat']["id"],
