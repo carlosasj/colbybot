@@ -1,7 +1,7 @@
 from celery import shared_task
 
+from bot.commands import StopCmd
 from bot.utils import gen_delay
-from .generic_send import send_message
 
 
 @shared_task(
@@ -9,13 +9,8 @@ from .generic_send import send_message
     bind=True,
     max_retries=6,
 )
-def stop(self, update, argument=None):
+def stop(self, update):
     try:
-        msg = {
-            "chat_id": update['message']['chat']["id"],
-            "text": "You send me /stop",
-        }
-        send_message.delay(msg)
-        return 0
+        return StopCmd(update).execute()
     except Exception as exc:
         raise self.retry(exc=exc, countdown=gen_delay(self))

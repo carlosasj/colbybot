@@ -68,7 +68,6 @@ class Chat(models.Model):
     def subscribed_as_keyboard(self):
         topics = self.subscribed_topics.order_by('created_at')
         keys = []
-        # even = len(topics) % 2 == 0
         for i in range(0, len(topics), 2):
             item_a = topics[i]
             try:

@@ -1,23 +1,24 @@
-from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.views.decorators.http import require_http_methods
 
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+
+from ..serializers import TopicSerializer
 from ..models import Topic
 
 
-@require_http_methods(["GET", "POST"])
-def endpoint_public(request, code, secret):
-    topic = get_object_or_404(Topic, code=code, secret=secret)
+class TopicWebhook(APIView):
 
-    if request.method == 'POST':
-        return endpoint_public_post(request, topic)
-    else:
-        return endpoint_public_get(request, topic)
+    def get_object(self, code, secret):
+        return get_object_or_404(Topic, code=code, secret=secret)
 
+    def get(self, request, code, secret):
+        topic = self.get_object(code, secret)
+        serializer = TopicSerializer(topic)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
-def endpoint_public_get(request, topic):
-    return JsonResponse(topic.info(), status=200)
-
-
-def endpoint_public_post(request, topic):
-    pass
+    def post(self, request, code, secret):
+        topic = self.get_object(code, secret)
+        serializer = TopicSerializer(topic)
+        return Response(serializer.data, status=status.HTTP_200_OK)

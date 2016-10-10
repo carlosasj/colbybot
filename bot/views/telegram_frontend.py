@@ -36,6 +36,7 @@ def error_answer(update, text, parse_mode=None):
 def parse_commands(request):
     body = request.body.decode("utf-8")
     update = Update(body)
+    body = update.json
     body['validations'] = {
         "is_edited": None,
         "is_valid_request": None,
@@ -107,7 +108,7 @@ def parse_commands(request):
         body['validations']['the_command'] = message.the_command
         body['validations']['the_argument'] = message.the_argument
 
-        COMMANDS[message.the_command].delay(body, message.the_argument)
+        COMMANDS[message.the_command].delay(body)
         return HttpResponse(status=200)
 
     else:
@@ -127,7 +128,7 @@ def parse_commands(request):
             body['validations']['the_command'] = last_cmd
             body['validations']['the_argument'] = message.the_argument
 
-            COMMANDS[last_cmd].delay(body, message.the_argument)
+            COMMANDS[last_cmd].delay(body)
 
             return HttpResponse(status=200)
 

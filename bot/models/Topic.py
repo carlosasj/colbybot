@@ -53,19 +53,30 @@ class Topic(models.Model):
 
     objects = TopicManager()
 
+    @property
+    def subscribers_count(self):
+        return self.subscribers.count()
+
+    @property
+    def last_publish_humanize(self):
+        return self.last_publish.strftime("%Y-%m-%d %H:%M:%S")
+
+    @property
+    def created_at_humanize(self):
+        return self.created_at.strftime("%Y-%m-%d")
+
     def info(self, humanize=False):
         if humanize:
             return {
                 'code': self.code,
-                'subscribers_count': self.subscribers.count(),
-                'last_publish': (self.last_publish
-                                 .strftime("%Y-%m-%d %H:%M:%S")),
-                'created_at': self.created_at.strftime("%Y-%m-%d"),
+                'subscribers_count': self.subscribers_count,
+                'last_publish': self.last_publish_humanize,
+                'created_at': self.created_at_humanize,
             }
         else:
             return {
                 'code': self.code,
-                'subscribers_count': self.subscribers.count(),
+                'subscribers_count': self.subscribers_count,
                 'last_publish': self.last_publish,
                 'created_at': self.created_at,
             }
