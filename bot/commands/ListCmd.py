@@ -1,3 +1,4 @@
+from ..messages_commom import EMPTY
 from ..models.Command0Arg import Command0Arg
 
 
@@ -32,5 +33,4 @@ class ListCmd(Command0Arg):
             topics_txt = format_topic_list(topics, self.chat)
             return text.format(topics=topics_txt)
         else:
-            return ("Sorry, you don't have any topic yet.\n"
-                    "Send me /new to create a Topic.")
+            return EMPTY

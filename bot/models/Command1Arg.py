@@ -1,5 +1,7 @@
 from abc import abstractmethod
-from bot.models.CommandAbstract import CommandAbstract
+
+from ..messages_commom import EMPTY
+from ..models.CommandAbstract import CommandAbstract
 
 
 class Command1Arg(CommandAbstract):
@@ -16,6 +18,20 @@ class Command1Arg(CommandAbstract):
     @abstractmethod
     def without_argument(self):
         pass
+
+    def ask_for_topic_code(self):
+        keyboard = self.chat.subscribed_as_keyboard()
+        if keyboard:
+            return {
+                'text': "Ok, now send me the TopicCode",
+                'reply_markup': {
+                    'keyboard': keyboard,
+                    'resize_keyboard': True,
+                    'one_time_keyboard': True,
+                }
+            }
+        else:
+            return EMPTY
 
     def execute(self):
         if self.the_argument:

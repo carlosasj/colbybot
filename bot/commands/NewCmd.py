@@ -22,11 +22,6 @@ class NewCmd(Command0Arg):
 
     def without_argument(self):
         topic = Topic.objects.generate_new(self.chat)
-        webhook_endpoint = ''.join([
-            settings.DOMAIN,
-            reverse('publish_endpoint',
-                    kwargs={"code": topic.code, "secret": topic.secret})
-        ])
 
-        return TEXT.format(webhook_endpoint=webhook_endpoint,
+        return TEXT.format(webhook_endpoint=topic.webhook_endpoint,
                            topic_code=topic.code)
