@@ -44,5 +44,3 @@ def dict_to_markdown(dikt, order=()):
                 lines.append(line)
 
     return '\n'.join(lines)
-
-
