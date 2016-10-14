@@ -75,5 +75,5 @@ if '__main__' == __name__:
         'ERROR': logging.ERROR,
         'CRITICAL': logging.CRITICAL,
     }
-    logging.basicConfig(level=log_level[os.getenv('LOG_LEVEL', 'INFO')])
+    logging.basicConfig(level=log_level[os.getenv('LOG_LEVEL', 'CRITICAL')])
     main()

@@ -34,10 +34,15 @@ def dict_to_markdown(dikt, order=()):
             key, text = o
         else:
             key, text = (o, o)
-        value = dikt.get(key)
-        if value:
-            line = ''.join(['*', str(text), ':* ', str(value)])
-            lines.append(line)
+
+        if key == '\n':
+            lines.append('')
+        else:
+            value = dikt.get(key)
+            if value:
+                line = ''.join(['*', str(text), ':* ', str(value)])
+                lines.append(line)
 
     return '\n'.join(lines)
+
 
