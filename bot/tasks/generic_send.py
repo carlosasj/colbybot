@@ -12,10 +12,10 @@ import logging
 )
 def send_message(self, message):
     r = requests.post(api_path('sendMessage'), json=message)
-    logging.info({"message": message, "status": r.status_code})
     if r.status_code == 200:
         return 0
     else:
+        logging.info({"message": message, "status": {"code": r.status_code, "msg": r.json()}})
         raise self.retry(
             exc=Exception('Error while sending message'),
             countdown=gen_delay(self)
