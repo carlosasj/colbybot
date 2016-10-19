@@ -1,4 +1,6 @@
+from django.conf import settings
 from django.db import models, IntegrityError
+from django.urls import reverse
 from django.utils.timezone import now
 from ..utils import randomstr
 
@@ -54,6 +56,14 @@ class Topic(models.Model):
     objects = TopicManager()
 
     @property
+    def webhook_endpoint(self):
+        return ''.join([settings.DOMAIN,
+                        reverse('publish_endpoint',
+                                kwargs={"code": self.code,
+                                        "secret": self.secret}
+                                )])
+
+    @property
     def subscribers_count(self):
         return self.subscribers.count()
 
@@ -80,3 +90,7 @@ class Topic(models.Model):
                 'last_publish': self.last_publish,
                 'created_at': self.created_at,
             }
+
+    def revoke(self):
+        self.secret = randomstr(16)
+        self.save()

@@ -29,7 +29,7 @@ class CommandAbstract(ABC):
             msg_['text'] = emojize(msg_['text'])
         if 'chat_id' not in msg_:
             msg_['chat_id'] = self.chat.id
-        if self.chat.state == 'root' and 'reply_markup' not in msg_:
+        if 'reply_markup' not in msg_ and self.chat.state == 'root':
             msg_['reply_markup'] = {'hide_keyboard': True}
         send_message.delay(msg_)
 

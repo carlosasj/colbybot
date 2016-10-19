@@ -22,16 +22,4 @@ class InfoCmd(Command1Arg):
         return text
 
     def without_argument(self):
-        keyboard = self.chat.subscribed_as_keyboard()
-        if keyboard:
-            return {
-                'text': "Ok, now send me the TopicCode",
-                'reply_markup': {
-                    'keyboard': keyboard,
-                    'resize_keyboard': True,
-                    'one_time_keyboard': True,
-                }
-            }
-        else:
-            return ("Sorry, you don't have any topic yet.\n"
-                    "Send me /new to create a Topic.")
+        return self.ask_for_topic_code()
