@@ -16,10 +16,21 @@ class InfoCmd(Command1Arg):
                  ('last_publish', 'Last publish'),
                  ('created_at', 'Created at'))
             )
+            return {
+                'text': text,
+                'reply_markup': {
+                    'inline_keyboard': [
+                        [
+                            {'text': "Revoke", 'callback_data': "CB_REVOKE {}".format(topic.code)},
+                            {'text': "Delete", 'callback_data': "CB_DELETE {}".format(topic.code)},
+                        ]
+                    ]
+                }
+            }
         except Topic.DoesNotExist:
             text = ("Sorry, I could't find the topic `{topic_code}` in "
                     "your subscriptions.".format(topic_code=self.the_argument))
-        return text
+            return text
 
     def without_argument(self):
         return self.ask_for_topic_code()
