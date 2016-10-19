@@ -91,6 +91,3 @@ class Message:
         if not hasattr(self, '_chat_model'):
             self._chat_model = Chat.objects.get(id=self.chat['id'])
         return self._chat_model
-
-
-
